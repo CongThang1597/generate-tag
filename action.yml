@@ -1,13 +1,21 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: "Generate Release Tag Version"
+description: "Automatically generate next release tag based on previous tag."
+author: "CongThang1597"
+branding:
+  color: "red"
+  icon: "tag"
+
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  GITHUB_TOKEN:
+    description: "Github secrets token"
     required: true
-    default: '1000'
-outputs:
-  time: # output will be available to future steps
-    description: 'The message to output'
+  VERSION_BUILD:
+    description: "Version build: major, minor, patch"
+    required: false
+  PREFIX:
+    description: "Version prefix"
+    required: false
+
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"
