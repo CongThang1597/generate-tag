@@ -1,20 +1,18 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
+const {Octokit} = require("@octokit/rest");
 
-const getNewReleaseTag = (oldReleaseTag, versionBuild, versionPrefix) => {
+const getNewReleaseTag = (oldReleaseTag: any, versionBuild: any, versionPrefix: any) => {
     if (!versionPrefix) versionPrefix = ''
     if (!oldReleaseTag) {
         return `${versionPrefix}0.0.0`
     }
-    if (oldReleaseTag && oldReleaseTag.startsWith("v")) {
-        oldReleaseTag = oldReleaseTag
-            .replace('v', '')
-            .replace('v.', '')
-            .replace('v-', '')
-            .replace(`${versionPrefix}`, '')
-    }
-    oldReleaseTag = oldReleaseTag.replace(`${versionPrefix}`, '')
-    const version = oldReleaseTag.split(".").map((x) => Number(x));
+    oldReleaseTag = oldReleaseTag
+        .replace('v', '')
+        .replace('v.', '')
+        .replace('v-', '')
+        .replace(`${versionPrefix}`, '')
+    const version = oldReleaseTag.split(".").map((x: any) => Number(x));
     if (version.length < 1) {
         return `${versionPrefix}0.0.0`
     }
@@ -45,9 +43,12 @@ const generateNextReleaseTag = async () => {
         const githubToken = core.getInput("GITHUB_TOKEN");
         const versionBuild = core.getInput("VERSION_BUILD");
         const versionPrefix = core.getInput("PREFIX");
-        const octokit = github.getOctokit(githubToken);
+        const octokit = new Octokit({auth: githubToken})
         const {owner, repo} = github.context.repo;
-        const response = await octokit.repos.getLatestRelease({
+        console.log(`octokit: ${octokit}`);
+        console.log(`owner: ${owner}`);
+        console.log(`repo: ${repo}`);
+        const response = await octokit.rest.repos.getLatestRelease({
             owner,
             repo,
         });
