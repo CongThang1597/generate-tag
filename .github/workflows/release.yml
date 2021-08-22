@@ -13,15 +13,9 @@ jobs:
 
       - name: "✏️ Generate release changelog"
         id: generate-release-changelog
-        uses: heinrichreimer/github-changelog-generator-action@v2.2
+        uses: CongThang1597/auto-change-log@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          issues: true
-          issuesWoLabels: true
-          pullRequests: true
-          prWoLabels: true
-          unreleased: true
-          addSections: '{"documentation":{"prefix":"**Documentation:**","labels":["documentation"]}}'
 
       - name: "🚀 Create GitHub release"
         uses: actions/create-release@v1
