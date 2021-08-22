@@ -11,21 +11,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Create Release Notes
-        uses: decathlon/release-notes-generator-action@v3.1.5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: "✏️ Generate release changelog"
+        id: generate-release-changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          onlyLastTag: "true"
+          stripHeaders: "true"
+          stripGeneratorNotice: "true"
 
-      - name: Create release
+      - name: "🚀 Create GitHub release"
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
-          body: ''
+          release_name: Release ${{ github.ref }}
+          body: ${{ steps.generate-release-changelog.outputs.changelog }}
+
 
 #
 #      - name: Get release tag name
