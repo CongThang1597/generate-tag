@@ -16,7 +16,6 @@ jobs:
           ref: ${{ github.ref }}
           check-name: Auto tag
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
           allowed-conclusions: success
 
       - name: Get release tag name
