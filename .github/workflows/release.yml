@@ -1,59 +1,40 @@
-name: Auto Tag
+name: Release
 on:
   push:
-    branchs:
-      - main
+    tags:
+      - "*"
 
 jobs:
-  auto-tag:
+  release:
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-      - name: Generate release tag
-        uses: CongThang1597/generate-tag@main
+      - name: Get release tag name
+        uses: CongThang1597/tag-name-release@master
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION_BUILD: patch
-          PREFIX: v
 
-      - name: Push tag
-        id: github_release
-        run: |
-          echo "${{ env }}"
-          git tag ${{ env.RELEASE_TAG }}
-          git push origin ${{ env.RELEASE_TAG }}
-#
-#  release:
-#    needs: [ auto-tag ]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#        with:
-#          fetch-depth: 0
-#
-#      - name: Get release tag name
-#        uses: CongThang1597/tag-name-release@master
-#        with:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: Changelog
-#        uses: Bullrich/generate-release-changelog@master
-#        id: Changelog
-#        env:
-#          REPO: ${{ github.repository }}
-#
-#      - name: Create Release
-#        id: create_release
-#        uses: actions/create-release@latest
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          tag_name: ${{ env.RELEASE_TAG_NAME }}
-#          release_name: Release ${{ env.RELEASE_TAG_NAME }}
-#          body: |
-#            ${{ steps.Changelog.outputs.changelog }}
-#          draft: false
-#          prerelease: false
+      - name: Changelog
+        uses: Bullrich/generate-release-changelog@master
+        id: Changelog
+        env:
+          REPO: ${{ github.repository }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_TAG_NAME }}
+          release_name: Release ${{ env.RELEASE_TAG_NAME }}
+          body: |
+            ${{ steps.Changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+
