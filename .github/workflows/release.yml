@@ -11,16 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Check Change Log
-        run: |
-          if [ ! -f CHANGELOG.md ]; then
-            touch CHANGELOG.md
-          fi
-
-      - name: Extract release notes
-        id: extract-release-notes
-        uses: ffurrer2/extract-release-notes@v1
-
       - name: Create release
         uses: actions/create-release@v1
         env:
@@ -30,7 +20,7 @@ jobs:
           release_name: ${{ github.ref }}
           draft: false
           prerelease: false
-          body: ${{ steps.extract-release-notes.outputs.release_notes }}
+          body: ''
 
 #
 #      - name: Get release tag name
