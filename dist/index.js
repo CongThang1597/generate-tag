@@ -2253,6 +2253,44 @@ exports.paginatingEndpoints = paginatingEndpoints;
 
 /***/ }),
 
+/***/ 883:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+const VERSION = "1.0.4";
+
+/**
+ * @param octokit Octokit instance
+ * @param options Options passed to Octokit constructor
+ */
+
+function requestLog(octokit) {
+  octokit.hook.wrap("request", (request, options) => {
+    octokit.log.debug("request", options);
+    const start = Date.now();
+    const requestOptions = octokit.request.endpoint.parse(options);
+    const path = requestOptions.url.replace(options.baseUrl, "");
+    return request(options).then(response => {
+      octokit.log.info(`${requestOptions.method} ${path} - ${response.status} in ${Date.now() - start}ms`);
+      return response;
+    }).catch(error => {
+      octokit.log.info(`${requestOptions.method} ${path} - ${error.status} in ${Date.now() - start}ms`);
+      throw error;
+    });
+  });
+}
+requestLog.VERSION = VERSION;
+
+exports.requestLog = requestLog;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
 /***/ 44:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -3832,6 +3870,31 @@ function isPlainObject(o) {
 }
 
 exports.isPlainObject = isPlainObject;
+
+
+/***/ }),
+
+/***/ 375:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+var core = __nccwpck_require__(762);
+var pluginRequestLog = __nccwpck_require__(883);
+var pluginPaginateRest = __nccwpck_require__(193);
+var pluginRestEndpointMethods = __nccwpck_require__(44);
+
+const VERSION = "18.9.1";
+
+const Octokit = core.Octokit.plugin(pluginRequestLog.requestLog, pluginRestEndpointMethods.legacyRestEndpointMethods, pluginPaginateRest.paginateRest).defaults({
+  userAgent: `octokit-rest.js/${VERSION}`
+});
+
+exports.Octokit = Octokit;
+//# sourceMappingURL=index.js.map
 
 
 /***/ }),
@@ -6209,7 +6272,7 @@ module.exports = require("zlib");
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/
+/******/ 	
 /******/ 	// The require function
 /******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -6223,7 +6286,7 @@ module.exports = require("zlib");
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/
+/******/ 	
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
@@ -6232,36 +6295,34 @@ module.exports = require("zlib");
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
-/******/
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
-/******/
+/******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/
+/******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(186);
 const github = __nccwpck_require__(438);
+const {Octokit} = __nccwpck_require__(375);
 
 const getNewReleaseTag = (oldReleaseTag, versionBuild, versionPrefix) => {
     if (!versionPrefix) versionPrefix = ''
     if (!oldReleaseTag) {
         return `${versionPrefix}0.0.0`
     }
-    if (oldReleaseTag && oldReleaseTag.startsWith("v")) {
-        oldReleaseTag = oldReleaseTag
-            .replace('v', '')
-            .replace('v.', '')
-            .replace('v-', '')
-            .replace(`${versionPrefix}`, '')
-    }
-    oldReleaseTag = oldReleaseTag.replace(`${versionPrefix}`, '')
+    oldReleaseTag = oldReleaseTag
+        .replace('v', '')
+        .replace('v.', '')
+        .replace('v-', '')
+        .replace(`${versionPrefix}`, '')
     const version = oldReleaseTag.split(".").map((x) => Number(x));
     if (version.length < 1) {
         return `${versionPrefix}0.0.0`
@@ -6293,11 +6354,8 @@ const generateNextReleaseTag = async () => {
         const githubToken = core.getInput("GITHUB_TOKEN");
         const versionBuild = core.getInput("VERSION_BUILD");
         const versionPrefix = core.getInput("PREFIX");
-        const octokit = github.getOctokit(githubToken);
-        console.log(`octokit: ${octokit}`);
+        const octokit = new Octokit({auth: githubToken})
         const {owner, repo} = github.context.repo;
-        console.log(`owner: ${owner}`);
-        console.log(`repo: ${repo}`);
         const response = await octokit.rest.repos.getLatestRelease({
             owner,
             repo,
