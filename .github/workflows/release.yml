@@ -1,9 +1,5 @@
 name: Release
-on:
-  workflow_run:
-    workflows: [ auto-tag ]
-    types:
-      - completed
+on: [ push ]
 
 jobs:
   release:
