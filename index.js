@@ -5,7 +5,7 @@ const {Octokit} = require("@octokit/rest");
 const getNewReleaseTag = (oldReleaseTag, versionBuild, versionPrefix) => {
     if (!versionPrefix) versionPrefix = ''
     if (!oldReleaseTag) {
-        return `${versionPrefix}0.0.0`
+        return `${versionPrefix}0.0.1`
     }
     oldReleaseTag = oldReleaseTag
         .replace('v', '')
@@ -14,7 +14,7 @@ const getNewReleaseTag = (oldReleaseTag, versionBuild, versionPrefix) => {
         .replace(`${versionPrefix}`, '')
     const version = oldReleaseTag.split(".").map((x) => Number(x));
     if (version.length < 1) {
-        return `${versionPrefix}0.0.0`
+        return `${versionPrefix}0.0.1`
     }
     if (versionBuild === 'major') {
         version[0] = version[0] + 1
