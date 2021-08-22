@@ -3,6 +3,7 @@ const github = require("@actions/github");
 const {Octokit} = require("@octokit/rest");
 
 const getNewReleaseTag = (oldReleaseTag, versionBuild, versionPrefix) => {
+    console.log(1)
     if (!versionPrefix) versionPrefix = ''
     if (!oldReleaseTag) {
         return `${versionPrefix}0.0.1`
