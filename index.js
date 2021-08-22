@@ -5,6 +5,7 @@ const {Octokit} = require("@octokit/rest");
 const getNewReleaseTag = (oldReleaseTag, versionBuild, versionPrefix) => {
     console.log(1)
     console.log(2)
+    console.log(3)
     if (!versionPrefix) versionPrefix = ''
     if (!oldReleaseTag) {
         return `${versionPrefix}0.0.1`
