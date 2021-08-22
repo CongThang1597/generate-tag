@@ -15,6 +15,7 @@ inputs:
   PREFIX:
     description: "Version prefix"
     required: false
+    default: v
 
 runs:
   using: "node12"

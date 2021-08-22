@@ -50,8 +50,7 @@ const generateNextReleaseTag = async () => {
             repo,
             per_page: 5
         });
-        console.log(response.data)
-        const oldReleaseTag = response.data ? response.data[0].name : null;
+        const oldReleaseTag = response.data && response.data.length > 0 ? response.data[0].name : null;
         const newReleaseTag = getNewReleaseTag(oldReleaseTag, versionBuild, versionPrefix);
         console.log(`Previous Release Tag: ${oldReleaseTag}`);
         console.log(`New Release Tag: ${newReleaseTag}`);
