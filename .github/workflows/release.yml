@@ -1,5 +1,8 @@
 name: Release
-on: [ push ]
+on:
+  push:
+    tags:
+      - "v*"
 
 jobs:
   release:
@@ -7,38 +10,51 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: "✏️ Generate release changelog"
+        id: generate-release-changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.2
         with:
-          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issues: true
+          issuesWoLabels: true
+          pullRequests: true
+          prWoLabels: true
+          unreleased: true
+          addSections: '{"documentation":{"prefix":"**Documentation:**","labels":["documentation"]}}'
 
-      - name: Wait for auto-tag to succeed
-        uses: lewagon/wait-on-check-action@v0.2
-        with:
-          ref: ${{ github.ref }}
-          check-name: Auto tag
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          allowed-conclusions: success
-
-      - name: Get release tag name
-        uses: CongThang1597/tag-name-release@master
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Changelog
-        uses: Bullrich/generate-release-changelog@master
-        id: Changelog
-        env:
-          REPO: ${{ github.repository }}
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
+      - name: "🚀 Create GitHub release"
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.RELEASE_TAG_NAME }}
-          release_name: Release ${{ env.RELEASE_TAG_NAME }}
-          body: |
-            ${{ steps.Changelog.outputs.changelog }}
-          draft: false
-          prerelease: false
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: ${{ steps.generate-release-changelog.outputs.changelog }}
 
+
+#
+#      - name: Get release tag name
+#        uses: CongThang1597/tag-name-release@master
+#        with:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Changelog
+#        uses: Bullrich/generate-release-changelog@master
+#        id: Changelog
+#        env:
+#          REPO: ${{ github.repository }}
+#
+#      - name: Create Release
+#        id: create_release
+#        uses: actions/create-release@latest
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: ${{ github.ref }}
+#          release_name: Release ${{ github.ref }}
+#          body: |
+#            ${{ steps.Changelog.outputs.changelog }}
+#          draft: false
+#          prerelease: false
+#
